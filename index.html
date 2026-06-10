@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Support — Inova</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f7f6;
+      --bg-tertiary: #f0efed;
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6b66;
+      --text-tertiary: #9b9b96;
+      --border-light: rgba(0,0,0,0.1);
+      --border-mid: rgba(0,0,0,0.18);
+      --border-strong: rgba(0,0,0,0.28);
+      --accent: #1D9E75;
+      --accent-dark: #0F6E56;
+      --accent-light: #E1F5EE;
+      --danger: #E24B4A;
+      --danger-light: #FCEBEB;
+      --danger-text: #A32D2D;
+      --warn: #BA7517;
+      --warn-light: #FAEEDA;
+      --info: #185FA5;
+      --info-light: #E6F1FB;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --sidebar-w: 220px;
+      --header-h: 52px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Consolas', 'SF Mono', monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #242422;
+        --bg-tertiary: #2c2c2a;
+        --text-primary: #f0efed;
+        --text-secondary: #9b9b96;
+        --text-tertiary: #6b6b66;
+        --border-light: rgba(255,255,255,0.08);
+        --border-mid: rgba(255,255,255,0.14);
+        --border-strong: rgba(255,255,255,0.22);
+        --accent-light: #0a3326;
+        --danger-light: #2a1010;
+        --danger-text: #f09595;
+        --warn-light: #2a1e08;
+        --info-light: #0a1e36;
+      }
+    }
+    html, body { height: 100%; font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 14px; }
+    .app { display: flex; height: 100vh; overflow: hidden; background: var(--bg-primary); }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--bg-secondary); border-right: 0.5px solid var(--border-light); display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-brand { padding: 16px; font-weight: 600; font-size: 15px; border-bottom: 0.5px solid var(--border-light); display: flex; align-items: center; gap: 9px; color: var(--text-primary); }
+    .sidebar-brand i { font-size: 20px; color: var(--accent); }
+    .sidebar-user { padding: 10px 14px; border-bottom: 0.5px solid var(--border-light); display: flex; align-items: center; gap: 9px; cursor: pointer; }
+    .sidebar-user:hover { background: var(--bg-tertiary); }
+    .sidebar-user-info .name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .sidebar-user-info .role { font-size: 11px; color: var(--text-secondary); }
+    .sidebar-nav { padding: 8px 0; flex: 1; overflow-y: auto; }
+    .nav-section { font-size: 10px; color: var(--text-tertiary); padding: 10px 16px 3px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 12px; border-radius: var(--radius-md); cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: background .12s; margin: 1px 6px; border: none; background: transparent; width: calc(100% - 12px); text-align: left; font-family: var(--font); }
+    .nav-item:hover { background: var(--bg-primary); color: var(--text-primary); }
+    .nav-item.active { background: var(--bg-primary); color: var(--text-primary); font-weight: 600; }
+    .nav-item i { font-size: 16px; width: 18px; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 99px; min-width: 18px; text-align: center; }
+    .nb-red { background: var(--danger-light); color: var(--danger-text); }
+    .nb-warn { background: var(--warn-light); color: var(--warn); }
+    .nb-gray { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .topbar { height: var(--header-h); border-bottom: 0.5px solid var(--border-light); display: flex; align-items: center; padding: 0 16px; gap: 10px; flex-shrink: 0; background: var(--bg-primary); }
+    .topbar-title { font-weight: 600; font-size: 15px; flex: 1; }
+    .search-wrap { display: flex; align-items: center; gap: 6px; background: var(--bg-secondary); border: 0.5px solid var(--border-light); border-radius: var(--radius-md); padding: 0 10px; height: 32px; }
+    .search-wrap input { background: transparent; border: none; outline: none; font-size: 13px; color: var(--text-primary); width: 180px; font-family: var(--font); }
+    .search-wrap input::placeholder { color: var(--text-tertiary); }
+    .content { flex: 1; overflow-y: auto; padding: 18px; }
+    .view { display: none; } .view.active { display: block; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; height: 32px; border-radius: var(--radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--border-mid); background: var(--bg-primary); color: var(--text-primary); font-family: var(--font); transition: background .12s; white-space: nowrap; }
+    .btn:hover { background: var(--bg-secondary); }
+    .btn i { font-size: 14px; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .btn-danger { background: var(--danger-light); border-color: var(--danger-light); color: var(--danger-text); }
+    .btn-sm { height: 26px; padding: 0 9px; font-size: 12px; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; }
+    .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; }
+    .stat-value { font-size: 24px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+    .stat-sub { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+
+    /* FILTERS */
+    .filters { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .filter-btn { display: inline-flex; align-items: center; gap: 3px; padding: 3px 10px; border-radius: 99px; font-size: 12px; cursor: pointer; border: 0.5px solid var(--border-light); background: transparent; color: var(--text-secondary); font-family: var(--font); transition: all .12s; }
+    .filter-btn.active, .filter-btn:hover { background: var(--bg-secondary); border-color: var(--border-mid); color: var(--text-primary); font-weight: 600; }
+    .filter-sep { width: 0.5px; height: 16px; background: var(--border-light); margin: 0 4px; }
+
+    /* TABLE */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tbl th { text-align: left; font-size: 10px; font-weight: 600; color: var(--text-tertiary); padding: 7px 10px; border-bottom: 0.5px solid var(--border-light); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+    .tbl td { padding: 9px 10px; border-bottom: 0.5px solid var(--border-light); vertical-align: middle; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tbody tr:hover td { background: var(--bg-secondary); cursor: pointer; }
+
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .b-open { background: var(--accent-light); color: var(--accent-dark); }
+    .b-prog { background: var(--info-light); color: var(--info); }
+    .b-resolved { background: var(--bg-secondary); color: var(--text-secondary); }
+    .b-closed { background: var(--bg-secondary); color: var(--text-tertiary); }
+    .b-critical { background: var(--danger-light); color: var(--danger-text); }
+    .b-high { background: var(--warn-light); color: var(--warn); }
+    .b-medium { background: var(--info-light); color: var(--info); }
+    .b-low { background: var(--accent-light); color: var(--accent-dark); }
+    .b-sla-ok { background: var(--accent-light); color: var(--accent-dark); }
+    .b-sla-warn { background: var(--warn-light); color: var(--warn); }
+    .b-sla-breach { background: var(--danger-light); color: var(--danger-text); }
+    .b-manager { background: #EEEDFE; color: #3C3489; }
+    .b-agent { background: var(--accent-light); color: var(--accent-dark); }
+    .pdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; flex-shrink: 0; vertical-align: middle; }
+    .dot-Critical { background: var(--danger); } .dot-High { background: #EF9F27; } .dot-Medium { background: #378ADD; } .dot-Low { background: #639922; }
+    .tid { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+    .avatar { border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; vertical-align: middle; }
+
+    /* DETAIL */
+    .detail-back { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 13px; display: inline-flex; align-items: center; gap: 5px; padding: 0; font-family: var(--font); margin-bottom: 12px; }
+    .detail-back:hover { color: var(--text-primary); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 260px; gap: 14px; }
+    .dcard { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 12px; }
+    .dcard-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-tertiary); margin-bottom: 10px; }
+    .dmeta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 5px 0; border-bottom: 0.5px solid var(--border-light); }
+    .dmeta:last-child { border-bottom: none; }
+    .dmeta-k { color: var(--text-secondary); }
+    .dmeta-v { font-weight: 600; color: var(--text-primary); text-align: right; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sla-bar-wrap { height: 6px; background: var(--bg-primary); border-radius: 99px; overflow: hidden; margin-top: 5px; }
+    .sla-bar { height: 100%; border-radius: 99px; transition: width .5s; }
+    .comment-item { display: flex; gap: 9px; margin-bottom: 12px; }
+    .comment-body { flex: 1; background: var(--bg-primary); border: 0.5px solid var(--border-light); border-radius: var(--radius-md); padding: 9px 11px; }
+    .comment-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; display: flex; gap: 8px; }
+    .comment-author { font-weight: 600; color: var(--text-primary); }
+    .comment-text { font-size: 13px; line-height: 1.6; }
+    .comment-input-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 4px; }
+    .comment-input-row textarea { flex: 1; background: var(--bg-primary); border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); padding: 8px 10px; font-size: 13px; font-family: var(--font); color: var(--text-primary); resize: none; height: 56px; outline: none; }
+    .comment-input-row textarea:focus { border-color: var(--accent); }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: flex; align-items: center; justify-content: center; z-index: 200; }
+    .modal { background: var(--bg-primary); border-radius: var(--radius-lg); border: 0.5px solid var(--border-mid); padding: 22px; width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 7px; }
+    .form-row { margin-bottom: 12px; }
+    .form-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block; }
+    .form-row input, .form-row select, .form-row textarea { width: 100%; background: var(--bg-secondary); border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); padding: 8px 10px; font-size: 13px; font-family: var(--font); color: var(--text-primary); outline: none; }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--accent); }
+    .form-row textarea { resize: none; height: 72px; }
+    .form-row select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; background-color: var(--bg-secondary); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .hidden { display: none !important; }
+    .empty-state { text-align: center; padding: 40px 16px; color: var(--text-secondary); font-size: 13px; }
+    .empty-state i { font-size: 32px; display: block; margin-bottom: 8px; color: var(--text-tertiary); }
+    .section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
+
+    /* ASSIGN PANEL */
+    .assign-card { border: 0.5px solid var(--border-light); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 10px; background: var(--bg-primary); }
+    .assign-card:hover { border-color: var(--border-mid); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--bg-primary); border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); padding: 10px 16px; font-size: 13px; box-shadow: 0 4px 20px rgba(0,0,0,.12); z-index: 999; display: flex; align-items: center; gap: 9px; opacity: 0; transition: opacity .2s, transform .2s; transform: translateY(8px); pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast i { font-size: 17px; color: var(--accent); }
+
+    /* BAR CHART */
+    .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12px; }
+    .bar-label { width: 90px; color: var(--text-secondary); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { flex: 1; background: var(--bg-tertiary); border-radius: 99px; height: 7px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width .5s; }
+    .bar-count { width: 22px; text-align: right; font-weight: 600; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 56px; }
+      .sidebar-brand span, .sidebar-user-info, .nav-section, .nav-item span, .nav-badge { display: none; }
+      .nav-item { justify-content: center; padding: 8px; margin: 2px 4px; width: calc(100% - 8px); }
+      .detail-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+      .g3 { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <i class="ti ti-headset" aria-hidden="true"></i>
+      <span>IT Support</span>
+    </div>
+    <div class="sidebar-user" onclick="switchUser()" title="Switch user">
+      <div id="sb-avatar"></div>
+      <div class="sidebar-user-info" id="sb-info"></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <button class="nav-item active" data-view="dashboard" onclick="nav('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="nav-item" data-view="tickets" onclick="nav('tickets')"><i class="ti ti-ticket"></i><span>All Tickets</span><span class="nav-badge nb-gray" id="open-badge">0</span></button>
+      <button class="nav-item" data-view="my-tickets" onclick="nav('my-tickets')"><i class="ti ti-user-check"></i><span>My Tickets</span></button>
+      <div class="nav-section">Filters</div>
+      <button class="nav-item" onclick="nav('tickets');quickPri('Critical')"><i class="ti ti-flame"></i><span>Critical</span><span class="nav-badge nb-red" id="crit-badge">0</span></button>
+      <button class="nav-item" onclick="nav('tickets');quickSLA()"><i class="ti ti-clock-exclamation"></i><span>SLA Breached</span><span class="nav-badge nb-warn" id="sla-badge">0</span></button>
+      <div class="nav-section" id="mgr-section">Manager</div>
+      <button class="nav-item" id="mgr-assign-btn" data-view="assign" onclick="nav('assign')"><i class="ti ti-users-group"></i><span>Assign Tickets</span></button>
+      <button class="nav-item" id="mgr-team-btn" data-view="team" onclick="nav('team')"><i class="ti ti-chart-bar"></i><span>Team Workload</span></button>
+      <div class="nav-section">Actions</div>
+      <button class="nav-item" onclick="openModal()"><i class="ti ti-plus"></i><span>New Ticket</span></button>
+      <button class="nav-item" onclick="exportCSV()"><i class="ti ti-download"></i><span>Export CSV</span></button>
+    </nav>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="search-wrap">
+        <i class="ti ti-search" style="font-size:14px;color:var(--text-tertiary)" aria-hidden="true"></i>
+        <input type="text" id="search-input" placeholder="Search tickets…" oninput="renderTickets()">
+      </div>
+      <button class="btn btn-primary" onclick="openModal()"><i class="ti ti-plus"></i>New Ticket</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-row" id="stats-row"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div class="section-title">Recent Tickets</div>
+            <table class="tbl"><thead><tr><th>ID</th><th>Subject</th><th>Status</th><th>SLA</th></tr></thead><tbody id="recent-tbody"></tbody></table>
+          </div>
+          <div>
+            <div class="section-title">Team Workload</div>
+            <div id="workload-viz" style="margin-bottom:14px"></div>
+            <div class="section-title">By Category</div>
+            <div id="cat-viz"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALL TICKETS -->
+      <div class="view" id="view-tickets">
+        <div class="filters" id="filter-bar">
+          <span style="font-size:11px;color:var(--text-secondary)">Status:</span>
+          <button class="filter-btn active" onclick="setSF('All')">All</button>
+          <button class="filter-btn" onclick="setSF('Open')">Open</button>
+          <button class="filter-btn" onclick="setSF('In Progress')">In Progress</button>
+          <button class="filter-btn" onclick="setSF('Resolved')">Resolved</button>
+          <button class="filter-btn" onclick="setSF('Closed')">Closed</button>
+          <div class="filter-sep"></div>
+          <span style="font-size:11px;color:var(--text-secondary)">Priority:</span>
+          <button class="filter-btn active" onclick="setPF('All')">All</button>
+          <button class="filter-btn" onclick="setPF('Critical')">Critical</button>
+          <button class="filter-btn" onclick="setPF('High')">High</button>
+          <button class="filter-btn" onclick="setPF('Medium')">Medium</button>
+          <button class="filter-btn" onclick="setPF('Low')">Low</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>ID</th><th>Subject</th><th>Requester</th><th>Category</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>SLA</th><th>Created</th></tr></thead>
+          <tbody id="tickets-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- MY TICKETS -->
+      <div class="view" id="view-my-tickets">
+        <div id="my-info" style="font-size:13px;color:var(--text-secondary);margin-bottom:12px"></div>
+        <table class="tbl"><thead><tr><th>ID</th><th>Subject</th><th>Requester</th><th>Priority</th><th>Status</th><th>SLA</th><th>Created</th></tr></thead>
+        <tbody id="my-tbody"></tbody></table>
+      </div>
+
+      <!-- ASSIGN (MANAGER) -->
+      <div class="view" id="view-assign"><div id="assign-content"></div></div>
+
+      <!-- TEAM WORKLOAD (MANAGER) -->
+      <div class="view" id="view-team"><div id="team-content"></div></div>
+
+      <!-- DETAIL -->
+      <div class="view" id="view-detail">
+        <button class="detail-back" id="back-btn"><i class="ti ti-arrow-left" style="font-size:13px"></i>Back</button>
+        <div id="detail-content"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- NEW TICKET MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModalOut(event)">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-ticket" aria-hidden="true"></i>New Support Ticket</div>
+    <div class="form-row"><label class="form-label">Subject *</label><input id="f-subject" placeholder="Brief description of the issue"></div>
+    <div class="g2">
+      <div class="form-row"><label class="form-label">Requester *</label><input id="f-req" placeholder="Full name"></div>
+      <div class="form-row"><label class="form-label">Email</label><input id="f-email" placeholder="user@company.com"></div>
+    </div>
+    <div class="g3">
+      <div class="form-row"><label class="form-label">Category</label>
+        <select id="f-cat"><option>Hardware</option><option>Software</option><option>Network</option><option>Security</option><option>Access</option><option>Email</option><option>Other</option></select>
+      </div>
+      <div class="form-row"><label class="form-label">Priority</label>
+        <select id="f-pri"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select>
+      </div>
+      <div class="form-row"><label class="form-label">Assign To</label>
+        <select id="f-assign"><option value="">Unassigned</option></select>
+      </div>
+    </div>
+    <div class="form-row"><label class="form-label">Description</label><textarea id="f-desc" placeholder="Detailed description of the issue…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTicket()"><i class="ti ti-send"></i>Submit Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER SWITCH MODAL -->
+<div class="modal-overlay hidden" id="user-modal" onclick="closeUserModalOut(event)">
+  <div class="modal" style="width:360px">
+    <div class="modal-title"><i class="ti ti-switch-horizontal" aria-hidden="true"></i>Switch User</div>
+    <div id="user-list"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeUserModal()">Cancel</button></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-circle-check" aria-hidden="true"></i><span id="toast-msg"></span></div>
+
+<script>
+const USERS = [
+  { name: 'Mohamed Abdelsamei', role: 'Manager', initials: 'MA', bg: '#EEEDFE', color: '#3C3489' },
+  { name: 'Mohamed Alfarra',    role: 'Agent',   initials: 'MF', bg: '#E1F5EE', color: '#085041' },
+  { name: 'Mohamed Abdelhamid', role: 'Agent',   initials: 'MH', bg: '#E6F1FB', color: '#185FA5' },
+];
+const SLA_H = { Critical: 4, High: 8, Medium: 24, Low: 72 };
+let currentUser = USERS[0];
+let statusFilter = 'All', priorityFilter = 'All', slaFilter = false;
+let currentView = 'dashboard', prevView = 'tickets';
+let nextId = 9;
+
+function hoursAgo(h) { return new Date(Date.now() - h * 3600000).toISOString(); }
+function today() { return new Date().toISOString(); }
+function pad(n) { return String(n).padStart(3, '0'); }
+
+let tickets = [
+  { id:'TKT-001', subject:'Laptop not booting after Windows update', req:'Karim Nasser', email:'karim@co.com', cat:'Hardware', pri:'High', status:'Open', assignee:'Mohamed Alfarra', created:hoursAgo(6), desc:'After the latest Windows update my laptop is stuck on a black screen with a blinking cursor. Tried restarting multiple times with no luck.', comments:[{ author:'Mohamed Alfarra', time:'2h ago', text:'Remote session scheduled for this afternoon. Will investigate the boot sector and recent update logs.' }] },
+  { id:'TKT-002', subject:'Unable to connect to corporate VPN from home', req:'Dina Yousef', email:'dina@co.com', cat:'Network', pri:'Medium', status:'In Progress', assignee:'Mohamed Abdelhamid', created:hoursAgo(10), desc:'Getting "Authentication failed" error when connecting via FortiClient. Was working fine last week.', comments:[{ author:'Mohamed Abdelhamid', time:'3h ago', text:'Checked the logs — MFA token expired. Resetting now and will send new credentials.' }] },
+  { id:'TKT-003', subject:'Office 365 email account locked out', req:'Sherif Badr', email:'sherif@co.com', cat:'Access', pri:'Low', status:'Resolved', assignee:'Mohamed Alfarra', created:hoursAgo(30), desc:'Account locked after multiple failed login attempts while traveling internationally.', comments:[{ author:'Mohamed Alfarra', time:'Yesterday', text:'Account unlocked and MFA reset. Recommended user set up trusted locations in Entra ID.' }] },
+  { id:'TKT-004', subject:'Ransomware detected on finance workstation WS-FIN-04', req:'Heba Ali', email:'heba@co.com', cat:'Security', pri:'Critical', status:'In Progress', assignee:'Mohamed Alfarra', created:hoursAgo(2), desc:'Microsoft Defender flagged suspicious file encryption activity. Machine isolated from the network immediately.', comments:[{ author:'Mohamed Alfarra', time:'1h ago', text:'Machine isolated. Running full forensics sweep. Malware variant identified.' },{ author:'Mohamed Abdelsamei', time:'30m ago', text:'Escalated to security team. Restoring from last verified clean backup. ETA 2 hours.' }] },
+  { id:'TKT-005', subject:'Microsoft Teams crashes on launch — MacBook', req:'Mona Ibrahim', email:'mona@co.com', cat:'Software', pri:'Medium', status:'Open', assignee:'', created:hoursAgo(5), desc:'Teams app crashes immediately on launch. macOS 14.4, M2 chip. Reinstalled twice with no improvement.', comments:[] },
+  { id:'TKT-006', subject:'New hire laptop setup — starts Monday', req:'HR Department', email:'hr@co.com', cat:'Hardware', pri:'Low', status:'Open', assignee:'', created:hoursAgo(1), desc:'Please prepare a laptop for new hire joining Monday. Requirements: Windows 11 Pro, standard software package, Intune enrollment, FortiClient VPN configured.', comments:[] },
+  { id:'TKT-007', subject:'HP LaserJet offline — 3rd floor print room', req:'Tarek Saleh', email:'tarek@co.com', cat:'Hardware', pri:'Low', status:'Closed', assignee:'Mohamed Abdelhamid', created:hoursAgo(50), desc:'Printer on 3rd floor shows offline for all users. Cannot print from any workstation.', comments:[{ author:'Mohamed Abdelhamid', time:'2d ago', text:'Fixed — DHCP lease renewed and changed the printer IP. Updated the print server configuration.' }] },
+  { id:'TKT-008', subject:'Phishing email received — link clicked by user', req:'Nadia Hassan', email:'nadia@co.com', cat:'Security', pri:'High', status:'Open', assignee:'', created:hoursAgo(3), desc:'User received a convincing phishing email and clicked the link before identifying it as suspicious. Needs immediate password reset, session revocation, and account audit.', comments:[] },
+];
+
+/* ── SLA ── */
+function slaDeadline(t) {
+  return new Date(new Date(t.created).getTime() + SLA_H[t.pri] * 3600000);
+}
+function slaInfo(t) {
+  if (t.status === 'Resolved' || t.status === 'Closed')
+    return { label: 'Done', pct: 100, cls: 'b-resolved', color: '#888', done: true };
+  const now = Date.now(), dl = slaDeadline(t).getTime();
+  const total = SLA_H[t.pri] * 3600000;
+  const remaining = dl - now;
+  const pct = Math.min(100, Math.round((now - new Date(t.created).getTime()) / total * 100));
+  if (remaining < 0)
+    return { label: 'Breached', pct: 100, cls: 'b-sla-breach', color: '#E24B4A', breached: true };
+  const h = Math.floor(remaining / 3600000), m = Math.floor((remaining % 3600000) / 60000);
+  const cls = remaining < SLA_H[t.pri] * 3600000 * 0.25 ? 'b-sla-warn' : 'b-sla-ok';
+  const color = cls === 'b-sla-warn' ? '#EF9F27' : '#1D9E75';
+  const label = remaining < 3600000 ? `${m}m` : `${h}h`;
+  return { label, pct, cls, color };
+}
+
+/* ── BADGES ── */
+function slaBadge(t) { const s = slaInfo(t); return `<span class="badge ${s.cls}">${s.label}</span>`; }
+function statusBadge(s) { const m = { Open:'b-open', 'In Progress':'b-prog', Resolved:'b-resolved', Closed:'b-closed' }; return `<span class="badge ${m[s]||'b-open'}">${s}</span>`; }
+function priBadge(p) { const m = { Critical:'b-critical', High:'b-high', Medium:'b-medium', Low:'b-low' }; return `<span class="badge ${m[p]||'b-medium'}"><span class="pdot dot-${p}"></span>${p}</span>`; }
+function avatar(name, size = 24) {
+  const u = USERS.find(x => x.name === name) || { initials: name ? name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : '?', bg: '#eee', color: '#888' };
+  return `<span class="avatar" style="width:${size}px;height:${size}px;background:${u.bg};color:${u.color};font-size:${Math.round(size*0.38)}px">${u.initials}</span>`;
+}
+function relDate(d) {
+  const h = Math.floor((Date.now() - new Date(d)) / 3600000);
+  if (h < 1) return 'Just now'; if (h < 24) return `${h}h ago`; if (h < 48) return 'Yesterday'; return `${Math.floor(h/24)}d ago`;
+}
+
+/* ── SIDEBAR USER ── */
+function renderSidebar() {
+  const u = currentUser;
+  document.getElementById('sb-avatar').innerHTML = avatar(u.name, 32);
+  document.getElementById('sb-info').innerHTML = `<div class="name">${u.name.split(' ').slice(1).join(' ')}</div><div class="role">${u.role}</div>`;
+  const isM = u.role === 'Manager';
+  ['mgr-section','mgr-assign-btn','mgr-team-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isM ? '' : 'none';
+  });
+  const fa = document.getElementById('f-assign');
+  if (fa) fa.innerHTML = '<option value="">Unassigned</option>' + USERS.filter(x => x.role === 'Agent').map(x => `<option>${x.name}</option>`).join('');
+}
+
+/* ── BADGES UPDATE ── */
+function updateBadges() {
+  const active = tickets.filter(t => t.status !== 'Resolved' && t.status !== 'Closed');
+  document.getElementById('open-badge').textContent = active.length;
+  document.getElementById('crit-badge').textContent = active.filter(t => t.pri === 'Critical').length;
+  document.getElementById('sla-badge').textContent = active.filter(t => slaInfo(t).breached).length;
+}
+
+/* ── NAVIGATION ── */
+function nav(view) {
+  if (view !== 'detail') prevView = currentView;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + view);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item[data-view]').forEach(n => n.classList.toggle('active', n.dataset.view === view));
+  const titles = { dashboard:'Dashboard', tickets:'All Tickets', 'my-tickets':'My Tickets', assign:'Assign Tickets', team:'Team Workload', detail:'Ticket Detail' };
+  document.getElementById('topbar-title').textContent = titles[view] || view;
+  currentView = view;
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'tickets') renderTickets();
+  if (view === 'my-tickets') renderMyTickets();
+  if (view === 'assign') renderAssign();
+  if (view === 'team') renderTeam();
+}
+
+function quickPri(p) { setSF('All'); setPF(p); }
+function quickSLA() { slaFilter = true; setSF('All'); setPF('All'); renderTickets(); }
+function setSF(f) {
+  statusFilter = f; slaFilter = false;
+  document.querySelectorAll('#filter-bar .filter-btn').forEach(b => {
+    if (['All','Open','In Progress','Resolved','Closed'].includes(b.textContent.trim())) b.classList.toggle('active', b.textContent.trim() === f);
+  });
+  renderTickets();
+}
+function setPF(f) {
+  priorityFilter = f; slaFilter = false;
+  document.querySelectorAll('#filter-bar .filter-btn').forEach(b => {
+    if (['All','Critical','High','Medium','Low'].includes(b.textContent.trim())) b.classList.toggle('active', b.textContent.trim() === f);
+  });
+  renderTickets();
+}
+
+/* ── DASHBOARD ── */
+function renderDashboard() {
+  updateBadges();
+  const active = tickets.filter(t => t.status !== 'Resolved' && t.status !== 'Closed');
+  const open = tickets.filter(t => t.status === 'Open').length;
+  const prog = tickets.filter(t => t.status === 'In Progress').length;
+  const res  = tickets.filter(t => t.status === 'Resolved').length;
+  const crit = active.filter(t => t.pri === 'Critical').length;
+  const breach = active.filter(t => slaInfo(t).breached).length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Open</div><div class="stat-value">${open}</div><div class="stat-sub">Awaiting action</div></div>
+    <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value">${prog}</div><div class="stat-sub">Being handled</div></div>
+    <div class="stat-card"><div class="stat-label">Resolved</div><div class="stat-value">${res}</div><div class="stat-sub">Completed</div></div>
+    <div class="stat-card"><div class="stat-label" style="color:var(--danger-text)">Critical</div><div class="stat-value" style="color:var(--danger)">${crit}</div><div class="stat-sub">Immediate attention</div></div>
+    <div class="stat-card"><div class="stat-label" style="color:var(--warn)">SLA Breached</div><div class="stat-value" style="color:var(--warn)">${breach}</div><div class="stat-sub">Overdue</div></div>`;
+  document.getElementById('recent-tbody').innerHTML = [...tickets].reverse().slice(0,5).map(t =>
+    `<tr onclick="openDetail('${t.id}')"><td class="tid">${t.id}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.subject}</td><td>${statusBadge(t.status)}</td><td>${slaBadge(t)}</td></tr>`
+  ).join('');
+  const agents = USERS.filter(u => u.role === 'Agent');
+  document.getElementById('workload-viz').innerHTML = agents.map(a => {
+    const mine = tickets.filter(t => t.assignee === a.name && t.status !== 'Closed' && t.status !== 'Resolved').length;
+    return `<div class="bar-row">${avatar(a.name,20)}<div class="bar-label" style="width:120px">${a.name}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, mine*20)}%;background:var(--accent)"></div></div><div class="bar-count">${mine}</div></div>`;
+  }).join('');
+  const cats = {}; tickets.forEach(t => { cats[t.cat] = (cats[t.cat]||0)+1; });
+  const max = Math.max(...Object.values(cats));
+  document.getElementById('cat-viz').innerHTML = Object.entries(cats).sort((a,b) => b[1]-a[1]).map(([c,n]) =>
+    `<div class="bar-row"><div class="bar-label">${c}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/max*100)}%;background:#378ADD"></div></div><div class="bar-count">${n}</div></div>`
+  ).join('');
+}
+
+/* ── ALL TICKETS ── */
+function renderTickets() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const list = tickets.filter(t => {
+    if (slaFilter) return slaInfo(t).breached;
+    const ms = statusFilter === 'All' || t.status === statusFilter;
+    const mp = priorityFilter === 'All' || t.pri === priorityFilter;
+    const mq = !q || t.subject.toLowerCase().includes(q) || t.req.toLowerCase().includes(q) || t.id.toLowerCase().includes(q);
+    return ms && mp && mq;
+  });
+  document.getElementById('tickets-tbody').innerHTML = list.length
+    ? list.map(t => `
+      <tr onclick="openDetail('${t.id}')">
+        <td class="tid">${t.id}</td>
+        <td style="max-width:200px"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${t.subject}</div></td>
+        <td>${t.req}</td>
+        <td style="color:var(--text-secondary);font-size:12px">${t.cat}</td>
+        <td>${priBadge(t.pri)}</td>
+        <td>${statusBadge(t.status)}</td>
+        <td>${t.assignee ? `<div style="display:flex;align-items:center;gap:5px">${avatar(t.assignee,18)}<span style="font-size:12px">${t.assignee}</span></div>` : `<span style="font-size:12px;color:var(--text-tertiary)">Unassigned</span>`}</td>
+        <td>${slaBadge(t)}</td>
+        <td style="font-size:12px;color:var(--text-secondary)">${relDate(t.created)}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="9"><div class="empty-state"><i class="ti ti-ticket-off"></i>No tickets match your filters</div></td></tr>`;
+  updateBadges();
+}
+
+/* ── MY TICKETS ── */
+function renderMyTickets() {
+  const mine = tickets.filter(t => t.assignee === currentUser.name);
+  document.getElementById('my-info').innerHTML = `Tickets assigned to <strong>${currentUser.name}</strong> — ${mine.length} total`;
+  document.getElementById('my-tbody').innerHTML = mine.length
+    ? mine.map(t => `<tr onclick="openDetail('${t.id}')"><td class="tid">${t.id}</td><td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${t.subject}</td><td>${t.req}</td><td>${priBadge(t.pri)}</td><td>${statusBadge(t.status)}</td><td>${slaBadge(t)}</td><td style="font-size:12px;color:var(--text-secondary)">${relDate(t.created)}</td></tr>`).join('')
+    : `<tr><td colspan="7"><div class="empty-state"><i class="ti ti-mood-happy"></i>No tickets assigned to you right now</div></td></tr>`;
+}
+
+/* ── ASSIGN ── */
+function renderAssign() {
+  const agents = USERS.filter(u => u.role === 'Agent');
+  const unassigned = tickets.filter(t => !t.assignee && t.status !== 'Closed' && t.status !== 'Resolved');
+  const active = tickets.filter(t => t.assignee && t.status !== 'Closed' && t.status !== 'Resolved');
+  let html = `<div class="dcard" style="margin-bottom:16px"><div class="dcard-label">Unassigned Tickets (${unassigned.length})</div>`;
+  if (!unassigned.length) {
+    html += `<div class="empty-state"><i class="ti ti-circle-check"></i>All active tickets are assigned</div>`;
+  } else {
+    unassigned.forEach(t => {
+      html += `<div class="assign-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0"><div class="tid">${t.id}</div><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:3px 0">${t.subject}</div><div style="display:flex;gap:6px">${priBadge(t.pri)}${statusBadge(t.status)}${slaBadge(t)}</div></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${agents.map(a => `<button class="btn btn-sm" onclick="assignTo('${t.id}','${a.name}')">${avatar(a.name,16)} ${a.name.split(' ')[1]}</button>`).join('')}
+        </div></div></div>`;
+    });
+  }
+  html += `</div><div class="dcard"><div class="dcard-label">Active Assigned Tickets — Reassign</div>`;
+  if (!active.length) {
+    html += `<div style="font-size:13px;color:var(--text-secondary);padding:8px 0">No active assigned tickets.</div>`;
+  } else {
+    active.forEach(t => {
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border-light);font-size:13px">
+        <div class="tid" style="width:72px">${t.id}</div>
+        <div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.subject}</div>
+        ${priBadge(t.pri)}
+        <div style="display:flex;align-items:center;gap:5px">${avatar(t.assignee,20)}</div>
+        <select onchange="assignTo('${t.id}',this.value)" style="font-size:12px;padding:4px 8px;border:0.5px solid var(--border-mid);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:var(--font)">
+          ${agents.map(a => `<option${t.assignee===a.name?' selected':''}>${a.name}</option>`).join('')}
+        </select>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+  document.getElementById('assign-content').innerHTML = html;
+}
+
+function assignTo(id, agentName) {
+  const t = tickets.find(x => x.id === id);
+  if (!t) return;
+  t.assignee = agentName;
+  if (t.status === 'Open') t.status = 'In Progress';
+  toast(`${t.id} assigned to ${agentName}`);
+  renderAssign();
+  updateBadges();
+}
+
+/* ── TEAM ── */
+function renderTeam() {
+  const agents = USERS.filter(u => u.role === 'Agent');
+  document.getElementById('team-content').innerHTML = agents.map(a => {
+    const all = tickets.filter(t => t.assignee === a.name);
+    const active = all.filter(t => t.status !== 'Closed' && t.status !== 'Resolved');
+    const done = all.filter(t => t.status === 'Resolved' || t.status === 'Closed');
+    const breach = active.filter(t => slaInfo(t).breached);
+    return `<div class="dcard" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        ${avatar(a.name,40)}<div><div style="font-size:14px;font-weight:600">${a.name}</div><span class="badge b-agent">Agent</span></div>
+        <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+          <div class="stat-card" style="padding:8px 12px;min-width:70px;text-align:center"><div class="stat-label">Active</div><div class="stat-value" style="font-size:20px">${active.length}</div></div>
+          <div class="stat-card" style="padding:8px 12px;min-width:70px;text-align:center"><div class="stat-label">Resolved</div><div class="stat-value" style="font-size:20px">${done.length}</div></div>
+          <div class="stat-card" style="padding:8px 12px;min-width:70px;text-align:center;${breach.length?'background:var(--danger-light)':''}">
+            <div class="stat-label" style="${breach.length?'color:var(--danger-text)':''}">Breached</div>
+            <div class="stat-value" style="font-size:20px;${breach.length?'color:var(--danger)':''}">${breach.length}</div>
+          </div>
+        </div>
+      </div>
+      <table class="tbl" style="font-size:12px"><thead><tr><th>ID</th><th>Subject</th><th>Priority</th><th>Status</th><th>SLA</th></tr></thead><tbody>
+        ${active.length
+          ? active.map(t => `<tr onclick="openDetail('${t.id}')"><td class="tid">${t.id}</td><td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.subject}</td><td>${priBadge(t.pri)}</td><td>${statusBadge(t.status)}</td><td>${slaBadge(t)}</td></tr>`).join('')
+          : '<tr><td colspan="5" style="text-align:center;color:var(--text-tertiary);padding:10px">No active tickets</td></tr>'}
+      </tbody></table>
+    </div>`;
+  }).join('');
+}
+
+/* ── DETAIL ── */
+function openDetail(id) {
+  const t = tickets.find(x => x.id === id);
+  if (!t) return;
+  const isManager = currentUser.role === 'Manager';
+  const agents = USERS.filter(u => u.role === 'Agent');
+  const si = slaInfo(t);
+  document.getElementById('detail-content').innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div class="tid" style="margin-bottom:4px">${t.id}</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px;line-height:1.3">${t.subject}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${priBadge(t.pri)}${statusBadge(t.status)}<span class="badge ${si.cls}">${si.breached ? 'SLA Breached' : si.done ? 'SLA Met' : 'SLA: '+si.label+' left'}</span></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select onchange="chStatus('${t.id}',this.value)" style="font-size:12px;padding:5px 10px;border:0.5px solid var(--border-mid);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:var(--font)">
+          ${['Open','In Progress','Resolved','Closed'].map(s => `<option${t.status===s?' selected':''}>${s}</option>`).join('')}
+        </select>
+        ${isManager ? `<select onchange="chAssign('${t.id}',this.value)" style="font-size:12px;padding:5px 10px;border:0.5px solid var(--border-mid);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:var(--font)">
+          <option value="">Unassigned</option>${agents.map(a => `<option${t.assignee===a.name?' selected':''}>${a.name}</option>`).join('')}
+        </select>` : ''}
+        <button class="btn btn-danger" onclick="exportPDF('${t.id}')"><i class="ti ti-download"></i>Export PDF</button>
+      </div>
+    </div>
+    ${!si.done ? `<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:4px"><span>SLA usage — ${t.pri} priority (${SLA_H[t.pri]}h window)</span><span>${si.pct}%</span></div><div class="sla-bar-wrap"><div class="sla-bar" style="width:${si.pct}%;background:${si.color}"></div></div></div>` : ''}
+    <div class="detail-grid">
+      <div>
+        <div class="dcard"><div class="dcard-label">Description</div><div style="font-size:13px;line-height:1.75">${t.desc}</div></div>
+        <div class="dcard">
+          <div class="dcard-label">Comments (${t.comments.length})</div>
+          ${t.comments.map(c => `<div class="comment-item">${avatar(c.author,28)}<div class="comment-body"><div class="comment-meta"><span class="comment-author">${c.author}</span><span>${c.time}</span></div><div class="comment-text">${c.text}</div></div></div>`).join('')}
+          <div class="comment-input-row">
+            <textarea id="nc-${t.id}" placeholder="Add a comment as ${currentUser.name}…"></textarea>
+            <button class="btn btn-primary" style="height:56px;flex-shrink:0" onclick="addComment('${t.id}')"><i class="ti ti-send"></i></button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="dcard" style="margin-bottom:12px">
+          <div class="dcard-label">Details</div>
+          <div class="dmeta"><span class="dmeta-k">Requester</span><span class="dmeta-v">${t.req}</span></div>
+          <div class="dmeta"><span class="dmeta-k">Email</span><span class="dmeta-v" style="font-size:12px">${t.email||'—'}</span></div>
+          <div class="dmeta"><span class="dmeta-k">Category</span><span class="dmeta-v">${t.cat}</span></div>
+          <div class="dmeta"><span class="dmeta-k">Created</span><span class="dmeta-v">${relDate(t.created)}</span></div>
+          <div class="dmeta"><span class="dmeta-k">SLA Deadline</span><span class="dmeta-v">${slaDeadline(t).toLocaleString()}</span></div>
+          <div class="dmeta"><span class="dmeta-k">Assigned To</span><div style="display:flex;align-items:center;gap:5px">${t.assignee ? avatar(t.assignee,18)+'<span class="dmeta-v">'+t.assignee+'</span>' : '<span style="color:var(--text-tertiary);font-size:12px">Unassigned</span>'}</div></div>
+        </div>
+        <div class="dcard">
+          <div class="dcard-label">SLA Policy</div>
+          ${Object.entries(SLA_H).map(([p,h]) => `<div class="dmeta"><span class="dmeta-k"><span class="pdot dot-${p}"></span>${p}</span><span class="dmeta-v">${h}h</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('back-btn').onclick = () => nav(prevView);
+  nav('detail');
+}
+
+function chStatus(id, val) { const t = tickets.find(x => x.id===id); if(t){t.status=val; toast('Status → '+val); openDetail(id);} }
+function chAssign(id, val) { const t = tickets.find(x => x.id===id); if(t){t.assignee=val; toast('Assigned → '+(val||'Unassigned')); openDetail(id);} }
+function addComment(id) {
+  const t = tickets.find(x => x.id===id);
+  const el = document.getElementById('nc-'+id);
+  if (!t || !el || !el.value.trim()) return;
+  t.comments.push({ author: currentUser.name, time: 'Just now', text: el.value.trim() });
+  toast('Comment added');
+  openDetail(id);
+}
+
+/* ── MODAL ── */
+function openModal() { renderSidebar(); document.getElementById('modal-overlay').classList.remove('hidden'); }
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  ['f-subject','f-req','f-email','f-desc'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+}
+function closeModalOut(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+function submitTicket() {
+  const subject = document.getElementById('f-subject').value.trim();
+  const req = document.getElementById('f-req').value.trim();
+  if (!subject || !req) { alert('Please fill in Subject and Requester.'); return; }
+  const assignee = document.getElementById('f-assign').value;
+  tickets.push({
+    id: 'TKT-'+pad(nextId++), subject, req,
+    email: document.getElementById('f-email').value.trim(),
+    cat: document.getElementById('f-cat').value,
+    pri: document.getElementById('f-pri').value,
+    status: assignee ? 'In Progress' : 'Open',
+    assignee,
+    created: today(),
+    desc: document.getElementById('f-desc').value.trim() || 'No description provided.',
+    comments: []
+  });
+  closeModal(); toast('Ticket created'); nav('tickets');
+}
+
+/* ── USER SWITCH ── */
+function switchUser() {
+  document.getElementById('user-list').innerHTML = USERS.map(u => `
+    <div onclick="selectUser('${u.name}')" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;border:0.5px solid ${u.name===currentUser.name?'var(--accent)':'var(--border-light)'};background:${u.name===currentUser.name?'var(--accent-light)':'transparent'};margin-bottom:8px;transition:background .12s">
+      ${avatar(u.name,36)}<div><div style="font-size:13px;font-weight:600">${u.name}</div><span class="badge ${u.role==='Manager'?'b-manager':'b-agent'}">${u.role}</span></div>
+      ${u.name===currentUser.name?'<i class="ti ti-check" style="margin-left:auto;color:var(--accent);font-size:18px" aria-hidden="true"></i>':''}
+    </div>`).join('');
+  document.getElementById('user-modal').classList.remove('hidden');
+}
+function selectUser(name) {
+  currentUser = USERS.find(u => u.name===name);
+  renderSidebar(); closeUserModal();
+  toast('Switched to '+name);
+  if ((currentView==='assign'||currentView==='team') && currentUser.role!=='Manager') nav('dashboard');
+  else nav(currentView);
+}
+function closeUserModal() { document.getElementById('user-modal').classList.add('hidden'); }
+function closeUserModalOut(e) { if (e.target===document.getElementById('user-modal')) closeUserModal(); }
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  const rows = [['ID','Subject','Requester','Email','Category','Priority','Status','Assigned To','SLA','Created']];
+  tickets.forEach(t => rows.push([t.id, `"${t.subject.replace(/"/g,'""')}"`, t.req, t.email, t.cat, t.pri, t.status, t.assignee||'Unassigned', slaInfo(t).label, new Date(t.created).toLocaleString()]));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})), download: 'tickets_export.csv' });
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('CSV exported');
+}
+
+/* ── EXPORT PDF ── */
+function exportPDF(id) {
+  const t = tickets.find(x => x.id===id); if (!t) return;
+  const si = slaInfo(t);
+  const win = window.open('','_blank','width=800,height=1000');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${t.id}</title><style>
+    body{font-family:Arial,sans-serif;padding:48px;color:#1a1a18;font-size:13px;line-height:1.6}
+    h1{font-size:20px;font-weight:700;margin:0 0 6px}h2{font-size:13px;font-weight:700;margin:22px 0 8px;padding-bottom:4px;border-bottom:1px solid #eee}
+    table{width:100%;border-collapse:collapse}td{padding:6px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+    td:first-child{width:150px;color:#666;font-weight:600}
+    .header{background:#e8f7f2;border:1px solid #9FE1CB;border-radius:10px;padding:20px 24px;margin-bottom:24px}
+    .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;margin-right:6px}
+    .comment{background:#f7f7f6;border-radius:6px;padding:9px 12px;margin-bottom:8px}
+    .comment-meta{font-size:11px;color:#888;margin-bottom:3px}
+    .sla{font-weight:700;color:${si.breached?'#A32D2D':si.done?'#0F6E56':'#185FA5'}}
+    .footer{margin-top:40px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa}
+  </style></head><body>
+  <div class="header">
+    <div style="font-family:monospace;font-size:11px;color:#666;margin-bottom:6px">${t.id}</div>
+    <h1>${t.subject}</h1>
+    <div style="margin-top:10px">
+      <span class="badge" style="background:#FAEEDA;color:#854F0B">${t.pri} Priority</span>
+      <span class="badge" style="background:#E1F5EE;color:#0F6E56">${t.status}</span>
+      <span class="sla">${si.breached ? '⚠ SLA Breached' : si.done ? '✓ SLA Met' : `SLA: ${si.label} remaining`}</span>
+    </div>
+  </div>
+  <h2>Ticket Details</h2>
+  <table>
+    <tr><td>Ticket ID</td><td>${t.id}</td></tr>
+    <tr><td>Requester</td><td>${t.req}</td></tr>
+    <tr><td>Email</td><td>${t.email||'—'}</td></tr>
+    <tr><td>Category</td><td>${t.cat}</td></tr>
+    <tr><td>Priority</td><td>${t.pri}</td></tr>
+    <tr><td>Status</td><td>${t.status}</td></tr>
+    <tr><td>Assigned To</td><td>${t.assignee||'Unassigned'}</td></tr>
+    <tr><td>Created</td><td>${new Date(t.created).toLocaleString()}</td></tr>
+    <tr><td>SLA Deadline</td><td>${slaDeadline(t).toLocaleString()}</td></tr>
+    <tr><td>SLA Status</td><td class="sla">${si.breached?'Breached':si.done?'Met':''+si.label+' remaining'}</td></tr>
+  </table>
+  <h2>Description</h2><p>${t.desc}</p>
+  <h2>Comments (${t.comments.length})</h2>
+  ${t.comments.length ? t.comments.map(c=>`<div class="comment"><div class="comment-meta">${c.author} — ${c.time}</div><div>${c.text}</div></div>`).join('') : '<p style="color:#aaa">No comments on this ticket.</p>'}
+  <div class="footer">Generated by Inova IT Support System &mdash; ${new Date().toLocaleString()}</div>
+  </body></html>`);
+  win.document.close(); win.print();
+  toast('PDF ready to print/save');
+}
+
+/* ── TOAST ── */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* ── INIT ── */
+renderSidebar();
+renderDashboard();
+setInterval(() => { updateBadges(); if (currentView==='dashboard') renderDashboard(); }, 60000);
+</script>
+</body>
+</html>
